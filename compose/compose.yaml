@@ -1,0 +1,68 @@
+volumes:
+  config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./config
+
+services:
+
+  ros-master:
+    image: ctumrs/mrs_uav_system:latest
+    network_mode: host
+    env_file:
+      - ./variables.env
+    command: roscore
+
+  mrs_multirotor_simulator:
+    depends_on:
+      - ros-master
+    image: ctumrs/mrs_uav_system:latest
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForRos && roslaunch mrs_multirotor_simulator multirotor_simulator.launch custom_config:=/etc/config/mrs_multirotor_simulator.yaml"
+
+  hw_api:
+    image: ctumrs/mrs_uav_system:latest
+    depends_on:
+      - ros-master
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForRos && roslaunch mrs_multirotor_simulator hw_api.launch"
+
+  core:
+    image: ctumrs/mrs_uav_system:latest
+    depends_on:
+      - ros-master
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForRos && roslaunch mrs_uav_core core.launch platform_config:=`rospack find mrs_multirotor_simulator`/config/mrs_uav_system/$$UAV_TYPE.yaml custom_config:=/etc/config/custom_config.yaml world_config:=/etc/config/world_config.yaml network_config:=/etc/config/network_config.yaml"
+
+  automatic_start:
+    image: ctumrs/mrs_uav_system:latest
+    depends_on:
+      - ros-master
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForRos && roslaunch mrs_uav_autostart automatic_start.launch custom_config:=/etc/config/automatic_start.yaml"
+
+# alternative way of running the commands
+    # entrypoint: ["/bin/bash", "-c"]
+    # command:
+    #   - |
+    #     source /opt/ros/noetic/setup.bash
+    #     waitForRos
+    #     rostopic list
