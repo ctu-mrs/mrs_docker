@@ -26,11 +26,12 @@ docker compose up
 
 ```bash
 docker compose down -v --remove-orphans
+docker network prune
 ```
 
 ## TODO
 
   * container health checks for proper dependencies
   * Afzal knows about how to log and pipe logs from containers
-  * `docker network --prune` for cleaning networks
+  * `docker network prune` for cleaning networks
   * `xhost si:localuser:root` for piping windows
