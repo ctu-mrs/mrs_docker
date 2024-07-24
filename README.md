@@ -21,3 +21,16 @@ docker compose up
 cd ./compose/gazebo_simulator
 docker compose up
 ```
+
+## Stopping the simulation
+
+```bash
+docker compose down -v --remove-orphans
+```
+
+## TODO
+
+  * container health checks for proper dependencies
+  * Afzal knows about how to log and pipe logs from containers
+  * `docker network --prune` for cleaning networks
+  * `xhost si:localuser:root` for piping windows

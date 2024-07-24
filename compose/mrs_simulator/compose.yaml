@@ -78,9 +78,7 @@ services:
     volumes:
       - config:/etc/config:consistent
         # mount the folders below to enable passing GUI to the host
-      - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev/dri:/dev/dri
-      - ~/.Xauthority:/root/.Xauthority
     env_file:
       - ./variables.env
     environment:
