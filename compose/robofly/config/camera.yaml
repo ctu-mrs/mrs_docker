@@ -1,0 +1,7 @@
+camera_name: "" # if the camera_name is not defined, the id is used
+camera_id: 0 
+stream_role: "still" # [raw, still, video, viewfinder]
+pixel_format: "RGB888" #pixel format documentation: https://libcamera.org/api-html/build_2include_2libcamera_2formats_8h_source.html
+resolution:
+  width: 1280
+  height: 800

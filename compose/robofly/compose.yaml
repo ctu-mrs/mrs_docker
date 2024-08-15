@@ -1,0 +1,97 @@
+volumes:
+  config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./config
+
+services:
+
+  ros-master:
+    image: ctumrs/mrs_uav_system:robofly
+    network_mode: host
+    env_file:
+      - ./variables.env
+    command: roscore
+
+  ros-time:
+    image: ctumrs/mrs_uav_system:robofly
+    network_mode: host
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForRos && rosparam set use_sim_time false"
+
+  hw_api:
+    image: ctumrs/mrs_uav_system:robofly
+    depends_on:
+      - ros-time
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForTime && roslaunch mrs_uav_px4_api api.launch"
+
+  core:
+    image: ctumrs/mrs_uav_system:robofly
+    depends_on:
+      - ros-time
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForHw && roslaunch mrs_uav_core core.launch platform_config:=`rospack find mrs_uav_deployment`/config/mrs_uav_system/$$UAV_TYPE.yaml custom_config:=/etc/config/custom_config.yaml world_config:=/etc/config/world_config.yaml network_config:=/etc/config/network_config.yaml"
+
+  camera1:
+    image: ctumrs/mrs_uav_system:robofly
+    depends_on:
+      - ros-time
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+    devices:
+      - /dev/:/dev/
+    privileged: true
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForTime && roslaunch libcamera_ros_driver uav.launch custom_config:=/etc/config/camera.yaml"
+
+  imu:
+    image: ctumrs/mrs_uav_system:robofly
+    depends_on:
+      - ros-time
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+      - /dev/:/dev/
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForTime && roslaunch mrs_icm_imu_driver imu.launch"
+
+  automatic_start:
+    image: ctumrs/mrs_uav_system:robofly
+    depends_on:
+      - ros-time
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+    env_file:
+      - ./variables.env
+    command: bash -c "waitForHw && roslaunch mrs_uav_autostart automatic_start.launch"
+
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8080:8080
+
+# alternative way of running the commands
+    # entrypoint: ["/bin/bash", "-c"]
+    # command:
+    #   - |
+    #     source /opt/ros/noetic/setup.bash
+    #     waitForRos
+    #     rostopic list
