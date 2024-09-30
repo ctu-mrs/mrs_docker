@@ -26,7 +26,7 @@ docker compose up
 
 ```bash
 docker compose down -v --remove-orphans
-docker network prune -f
+docker network prune
 ```
 
 ## TODO
