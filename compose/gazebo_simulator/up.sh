@@ -1,5 +1,5 @@
 xhost +
 
-docker compose up
+docker compose --env-file ./stack.env up
 
 xhost -
