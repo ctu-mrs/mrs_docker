@@ -1,4 +1,5 @@
 volumes:
+
   config:
     driver: local
     driver_opts:
@@ -6,13 +7,21 @@ volumes:
       type: none
       device: ./config
 
+  logs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./logs
+
 services:
 
-  ros-master:
+  roscore:
     image: ctumrs/mrs_uav_system:latest
     network_mode: host
     env_file:
       - ./variables.env
+    tty: true
     command: roscore
 
   gazebo_simulator:
@@ -22,11 +31,13 @@ services:
     network_mode: host
     volumes:
       - config:/etc/config:consistent
+        # mount the folders below to enable passing GUI to the host
       - /dev/dri:/dev/dri
     env_file:
       - ./variables.env
     environment:
         DISPLAY: $DISPLAY
+    tty: true
     command: bash -c "waitForRos && roslaunch mrs_uav_gazebo_simulation simulation.launch world_name:=grass_plane gui:=true"
 
   spawn:
@@ -38,6 +49,7 @@ services:
       - config:/etc/config:consistent
     env_file:
       - ./variables.env
+    tty: true
     command: bash -c 'waitForGazebo; rosservice call /mrs_drone_spawner/spawn "1 --$$UAV_TYPE --enable-rangefinder"'
 
   hw_api:
@@ -49,9 +61,10 @@ services:
       - config:/etc/config:consistent
     env_file:
       - ./variables.env
+    tty: true
     command: bash -c "waitForTime && roslaunch mrs_uav_px4_api api.launch"
 
-  core:
+  uav_core:
     image: ctumrs/mrs_uav_system:latest
     depends_on:
       - ros-master
@@ -60,7 +73,8 @@ services:
       - config:/etc/config:consistent
     env_file:
       - ./variables.env
-    command: bash -c "waitForHw && roslaunch mrs_uav_core core.launch platform_config:=`rospack find mrs_multirotor_simulator`/config/mrs_uav_system/$$UAV_TYPE.yaml custom_config:=/etc/config/custom_config.yaml world_config:=/etc/config/world_config.yaml network_config:=/etc/config/network_config.yaml"
+    tty: true
+    command: bash -c "waitForHw && roslaunch mrs_uav_core core.launch platform_config:=`rospack find mrs_uav_gazebo_simulation`/config/mrs_uav_system/$$UAV_TYPE.yaml custom_config:=/etc/config/custom_config.yaml world_config:=/etc/config/world_config.yaml network_config:=/etc/config/network_config.yaml"
 
   automatic_start:
     image: ctumrs/mrs_uav_system:latest
@@ -71,6 +85,7 @@ services:
       - config:/etc/config:consistent
     env_file:
       - ./variables.env
+    tty: true
     command: bash -c "waitForHw && roslaunch mrs_uav_autostart automatic_start.launch custom_config:=/etc/config/automatic_start.yaml"
 
   takeoff:
@@ -82,6 +97,7 @@ services:
       - config:/etc/config:consistent
     env_file:
       - ./variables.env
+    tty: true
     command: bash -c "waitForControl && rosservice call /uav1/hw_api/arming 1 && sleep 1 && rosservice call /uav1/hw_api/offboard"
 
   rviz:
@@ -91,12 +107,36 @@ services:
     network_mode: host
     volumes:
       - config:/etc/config:consistent
+        # mount the folders below to enable passing GUI to the host
       - /dev/dri:/dev/dri
     env_file:
       - ./variables.env
     environment:
         DISPLAY: $DISPLAY
+    tty: true
     command: bash -c "waitForHw && roslaunch mrs_uav_core rviz.launch"
+
+  rviz_interface:
+    image: ctumrs/mrs_uav_system:latest
+    depends_on:
+      - ros-master
+    network_mode: host
+    volumes:
+      - config:/etc/config:consistent
+        # mount the folders below to enable passing GUI to the host
+      - /dev/dri:/dev/dri
+    env_file:
+      - ./variables.env
+    environment:
+        DISPLAY: $DISPLAY
+    tty: true
+    command: bash -c "waitForHw && roslaunch mrs_rviz_plugins rviz_interface.launch"
+
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - logs:/etc/logs:consistent
 
 # alternative way of running the commands
     # entrypoint: ["/bin/bash", "-c"]
