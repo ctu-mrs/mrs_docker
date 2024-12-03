@@ -1,0 +1,53 @@
+volumes:
+
+  catkin_workspace:
+
+  logs:
+
+services:
+
+  # will copy user's ROS catkin workspace from the 'transport' alpine image to a shared volume
+  copy_catkin_workspace:
+    image: catkin_workspace:1.0.0
+    volumes:
+      - catkin_workspace:/tmp/docker/catkin_workspace:consistent
+    tty: true
+    command: sh -c "rm -rvf /tmp/docker/catkin_workspace/*; mkdir -pv /tmp/docker/catkin_workspace; cp -rv /etc/docker/catkin_workspace/* /tmp/docker/catkin_workspace/"
+
+  # starts the HW API for connecting the MRS UAV System to PX4
+  custom_package:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    depends_on:
+      - copy_catkin_workspace
+    volumes:
+      - catkin_workspace:/etc/docker/catkin_workspace:consistent
+    env_file:
+      - ./stack.env
+    tty: true
+    command: bash -c "source /etc/docker/catkin_workspace/devel/setup.bash && waitForRos && roslaunch <my_package> <my_launch_file>.launch"
+
+  # starts a plaintext logger
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - logs:/etc/logs:consistent
+
+  # this container can be used to access a terminal with ROS inside the compose session
+  terminal:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    depends_on:
+      - copy_catkin_workspace
+    env_file:
+      - ./stack.env
+    entrypoint: ["/bin/bash", "-c"]
+    volumes:
+      - catkin_workspace:/etc/docker/catkin_workspace:consistent
+      - /dev/:/dev/
+    command:
+      - bash --rcfile /etc/docker/catkin_workspace/devel/setup.bash
+    privileged: true
+    stdin_open: true
+    tty: true
