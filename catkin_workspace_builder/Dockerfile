@@ -1,5 +1,6 @@
-ARG WORKSPACE_PATH
+ARG WORKSPACE_PATH=set_from_outside
 ARG BASE_IMAGE=set_from_outside
+ARG TRANSPORT_IMAGE=set_from_outside
 
 #############################################################################
 
@@ -21,7 +22,7 @@ RUN cd /${WORKSPACE_PATH} && catkin build -s
 #############################################################################
 
 # SECOND STAGE: COPY THE WORKSPACE TO A BLANK APLINE IMAGE
-FROM alpine AS stage_cache_workspace
+FROM $TRANSPORT_IMAGE AS stage_cache_workspace
 
 ARG WORKSPACE_PATH
 
@@ -30,7 +31,7 @@ COPY --from=stage_build /${WORKSPACE_PATH} /${WORKSPACE_PATH}
 #############################################################################
 
 # THIRD STAGE: copy the workspace to a final blank ROS-equipped base image
-FROM alpine AS stage_finalization
+FROM $TRANSPORT_IMAGE AS stage_finalization
 
 ARG WORKSPACE_PATH
 
