@@ -14,4 +14,4 @@ RUN curl https://ctu-mrs.github.io/ppa-stable/add_ppa.sh | bash
 
 RUN apt-get -y install ros-noetic-mrs-uav-system-full
 
-CMD ["bash"]
+CMD ["/ros_entrypoint.sh"]
