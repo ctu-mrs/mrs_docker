@@ -10,7 +10,7 @@ cd ${MY_PATH}
 ## |                            setup                           |
 ## --------------------------------------------------------------
 
-LOCAL_TAG=mrs_uav_system:latest
+LOCAL_TAG=ros:noetic
 REGISTRY=ctumrs
 
 # single-platform image can be stored locally
