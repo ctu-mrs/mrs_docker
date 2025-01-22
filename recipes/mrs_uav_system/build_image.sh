@@ -15,7 +15,7 @@ cd ${MY_PATH}
 ## |                            setup                           |
 ## --------------------------------------------------------------
 
-LOCAL_TAG=mrs_uav_system/robofly_uvdar
+LOCAL_TAG=mrs_uav_system:latest
 REGISTRY=ctumrs
 
 ARCH=amd64
