@@ -10,8 +10,6 @@ FROM --platform=linux/${ARCH} $BASE_IMAGE AS stage_build
 
 ARG WORKSPACE_PATH
 
-RUN uname -m
-
 COPY ./cache/${WORKSPACE_PATH}/ /${WORKSPACE_PATH}/
 
 # create catkin workspace
