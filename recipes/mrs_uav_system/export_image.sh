@@ -15,7 +15,7 @@ cd ${MY_PATH}
 ## |                            setup                           |
 ## --------------------------------------------------------------
 
-LOCAL_TAG=mrs_uav_system:latest
+LOCAL_TAG=mrs_uav_system:robofly_uvdar
 REGISTRY=ctumrs
 
 EXPORT_PATH=~/docker

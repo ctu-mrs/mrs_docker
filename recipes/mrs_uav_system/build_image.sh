@@ -10,12 +10,12 @@ cd ${MY_PATH}
 ## |                            setup                           |
 ## --------------------------------------------------------------
 
-LOCAL_TAG=mrs_uav_system:latest
+LOCAL_TAG=mrs_uav_system:robofly_uvdar
 REGISTRY=ctumrs
 
 # single-platform image can be stored locally
-ARCH=linux/amd64
-# ARCH=linux/arm64
+# ARCH=linux/amd64
+ARCH=linux/arm64
 
 ## --------------------------------------------------------------
 ## |                            build                           |
