@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=1.5.0
+VERSION=1.5.1
 
 LOCAL_TAG=mrs_uav_system:$VERSION
 REGISTRY=ctumrs

@@ -1,4 +1,4 @@
-FROM ctumrs/ros_noetic:latest
+FROM ros:jazzy
 
 RUN apt-get -y update
 
@@ -10,8 +10,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install keyboard-configuration
 
 RUN apt-get -y install software-properties-common curl bash
 
-RUN curl https://ctu-mrs.github.io/ppa-stable/add_ppa.sh | bash
+RUN curl https://ctu-mrs.github.io/ppa2-unstable/add_ppa.sh | bash
 
-RUN apt-get -y install ros-noetic-mrs-uav-system-full
+RUN apt-get -y install ros-jazzy-mrs-uav-core
+RUN apt-get -y install ros-jazzy-mrs-uav-px4-api
+RUN apt-get -y install ros-jazzy-rmw-zenoh-cpp
 
 CMD ["/ros_entrypoint.sh"]
