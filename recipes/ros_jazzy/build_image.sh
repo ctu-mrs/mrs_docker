@@ -36,4 +36,4 @@ else
 fi
 
 # build the docker image using the builder and export the results to the local docker registry
-docker buildx build . --no-cache --file Dockerfile --tag $REGISTRY/$LOCAL_TAG --tag $REGISTRY/ros_jazzy:2025-06-02 --platform=linux/amd64,linux/arm64 --push 
+docker buildx build . --no-cache --file Dockerfile --tag $REGISTRY/$LOCAL_TAG --tag $REGISTRY/ros_jazzy:2025-07-27 --platform=linux/amd64,linux/arm64 --push 

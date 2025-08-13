@@ -15,20 +15,19 @@ cd ${MY_PATH}
 ## |                            setup                           |
 ## --------------------------------------------------------------
 
-LOCAL_TAG=gazebo_simulator:shared_data
-REGISTRY=ctumrs
+source ./common_vars.sh
 
-# ARCH=arm64 # robofly
-ARCH=amd64
+## | ------ check for the existance of the output folder ------ |
+
+[ ! -e $EXPORT_PATH ] && mkdir -p $EXPORT_PATH
 
 ## --------------------------------------------------------------
-## |                            build                           |
+## |                           export                           |
 ## --------------------------------------------------------------
 
-docker buildx use default
-
-docker buildx build . --file Dockerfile --tag $REGISTRY/$LOCAL_TAG --platform=linux/${ARCH}
+docker save ${OUTPUT_IMAGE} | gzip > ${EXPORT_PATH}/${OUTPUT_IMAGE}.tar.gz
 
 echo ""
-echo "$0: shared data were packed into '$LOCAL_TAG'"
+echo "$0: image exorted as ${EXPORT_PATH}/${OUTPUT_IMAGE}.tar.gz"
 echo ""
+

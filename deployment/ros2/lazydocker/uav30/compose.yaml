@@ -1,0 +1,130 @@
+volumes:
+
+  shared_data:
+    # external: true
+    # name: ${SESSION_NAME}_shared_data
+
+  colcon_workspace:
+    # external: true
+    # name: ${SESSION_NAME}_colcon_workspace
+
+services:
+
+  init:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    volumes:
+      - shared_data:/etc/docker/shared_data:consistent
+      - colcon_workspace:/etc/docker/colcon_workspace:consistent
+
+  zenoh:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    env_file:
+      - ./stack.env
+    volumes:
+      - /dev:/dev
+      - shared_data:/etc/docker/shared_data
+      - colcon_workspace:/etc/docker/colcon_workspace
+    command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
+
+  # starts a custom node from colcon_workspace
+  custom_node:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - /dev:/dev
+      - shared_data:/etc/docker/shared_data
+      - colcon_workspace:/etc/docker/colcon_workspace
+    env_file:
+      - ./stack.env
+    command:  >
+      bash -c "
+        source /etc/docker/colcon_workspace/install/setup.bash && ros2 launch mrs_uav_autostart automatic_start.py
+      "
+
+  # starts the HW API for connecting the MRS UAV System to PX4
+  hw_api:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - /dev:/dev
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_uav_px4_api api.py"
+
+  # starts the HW API for connecting the MRS UAV System to PX4
+  mavros:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - /dev:/dev
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_uav_px4_api mavros_realworld.py"
+
+  # starts the HW API for connecting the MRS UAV System to PX4
+  ouster:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - /dev:/dev
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch ouster_ros sensor.composite.launch.py sensor_hostname:=10.10.20.90 udp_dest:=10.10.20.101 viz:=false"
+
+  # starts the HW API for connecting the MRS UAV System to PX4
+  luxonis:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - /dev:/dev
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch depthai_ros_driver camera.launch.py namespace:=$UAV_NAME pointcloud.enable:=true"
+
+  # starts the MRS UAV System's core
+  uav_core:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - /dev:/dev
+      - shared_data:/etc/docker/shared_data
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_uav_core core.py platform_config:=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/mrs_uav_system/${UAV_TYPE}.yaml world_config:=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/worlds/world_${WORLD_NAME}.yaml custom_config:=/etc/docker/shared_data/custom_config.yaml network_config:=/etc/docker/shared_data/network_config.yaml"
+
+  # # starts the node that handles automatic initialization of the system and takeoff
+  # automatic_start:
+  #   image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+  #   network_mode: host
+  #   volumes:
+  #     - /dev/:/dev/
+  #   env_file:
+  #     - ./stack.env
+  #   command: bash -c "ros2 launch mrs_uav_autostart automatic_start.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
+
+  # starts `rosbag record`
+  rosbag:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    environment:
+      - SESSION_NAME=${SESSION_NAME}
+    volumes:
+      - /dev/:/dev/
+      - /home/mrs/docker/${SESSION_NAME}/bag_files:/etc/docker/bag_files:consistent
+      - shared_data:/etc/docker/shared_data:consistent
+    env_file:
+      - ./stack.env
+    command: bash -c "waitForOffboard; /etc/docker/shared_data/record.sh"
+
+  dogtail:
+    image: klaxalk/dogtail:latest
+    environment:
+      - SESSION_NAME=${SESSION_NAME}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/mrs/docker/${SESSION_NAME}/logs:/etc/logs:consistent

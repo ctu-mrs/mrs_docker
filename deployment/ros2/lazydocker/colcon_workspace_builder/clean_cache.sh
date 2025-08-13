@@ -15,13 +15,14 @@ cd ${MY_PATH}
 ## |                            setup                           |
 ## --------------------------------------------------------------
 
-LOCAL_TAG=mrs_uav_system:latest
-REGISTRY=ctumrs
-
-EXPORT_PATH=~/docker
+source ./common_vars.sh
 
 ## --------------------------------------------------------------
-## |                           export                           |
+## |                            build                           |
 ## --------------------------------------------------------------
 
-docker save ${REGISTRY}/${LOCAL_TAG} | gzip > ${EXPORT_PATH}/${LOCAL_TAG}.tar.gz
+rm -rf $CACHE_PATH
+
+echo ""
+echo "$0: cache cleaned"
+echo ""

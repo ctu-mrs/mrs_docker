@@ -1,0 +1,128 @@
+volumes:
+
+  shared_data:
+
+  bag_files:
+
+  logs:
+
+services:
+
+  # will copy session-specific data shared between containers from the shared_data container to a shared volume
+  copy_shared_data:
+    image: shared_data_gnss:latest
+    volumes:
+      - shared_data:/tmp/docker/shared_data:consistent
+    tty: true
+    command: sh -c "rm -rvf /tmp/docker/shared_data/*; mkdir -pv /tmp/docker/shared_data; cp -rv /etc/docker/shared_data/* /tmp/docker/shared_data/"
+
+  zenoh:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    depends_on:
+      copy_shared_data:
+        condition: service_completed_successfully
+    env_file:
+      - ./stack.env
+    tty: true
+    volumes:
+      - /dev/:/dev/
+    command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
+
+  # starts the HW API for connecting the MRS UAV System to PX4
+  hw_api:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    depends_on:
+      copy_shared_data:
+        condition: service_completed_successfully
+    volumes:
+      - /dev:/dev
+    privileged: true
+    env_file:
+      - ./stack.env
+    tty: true
+    command: bash -c "ros2 launch mrs_uav_px4_api api.py"
+
+  # starts the HW API for connecting the MRS UAV System to PX4
+  mavros:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    depends_on:
+      copy_shared_data:
+        condition: service_completed_successfully
+    volumes:
+      - /dev:/dev
+    privileged: true
+    env_file:
+      - ./stack.env
+    tty: true
+    command: bash -c "ros2 launch mrs_uav_px4_api mavros_realworld.py"
+
+  # starts the MRS UAV System's core
+  uav_core:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    depends_on:
+      copy_shared_data:
+        condition: service_completed_successfully
+    volumes:
+      - /dev:/dev
+      - shared_data:/etc/docker/shared_data
+    env_file:
+      - ./stack.env
+    tty: true
+    command: bash -c "ros2 launch mrs_uav_core core.py platform_config:=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/mrs_uav_system/${UAV_TYPE}.yaml world_config:=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/worlds/world_${WORLD_NAME}.yaml custom_config:=/etc/docker/shared_data/custom_config.yaml network_config:=/etc/docker/shared_data/network_config.yaml"
+
+  # starts the node that handles automatic initialization of the system and takeoff
+  automatic_start:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    depends_on:
+      copy_shared_data:
+        condition: service_completed_successfully
+    volumes:
+      - /dev/:/dev/
+    env_file:
+      - ./stack.env
+    tty: true
+    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
+
+  # starts `rosbag record`
+  rosbag:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    depends_on:
+      copy_shared_data:
+        condition: service_completed_successfully
+    volumes:
+      - /dev/:/dev/
+      - bag_files:/etc/docker/bag_files:consistent
+      - shared_data:/etc/docker/shared_data:consistent
+    env_file:
+      - ./stack.env
+    tty: true
+    command: bash -c "waitForOffboard; /etc/docker/shared_data/record.sh"
+
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - logs:/etc/logs:consistent
+
+  # this container can be used to access a terminal with ROS inside the compose session
+  terminal:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    env_file:
+      - ./stack.env
+    entrypoint: ["/bin/bash", "-c"]
+    volumes:
+      - bag_files:/etc/docker/bag_files:consistent
+      - shared_data:/etc/docker/shared_data:consistent
+      - /dev/:/dev/
+    command:
+      - bash --rcfile /opt/ros/jazzy/setup.bash
+    privileged: true
+    stdin_open: true
+    tty: true

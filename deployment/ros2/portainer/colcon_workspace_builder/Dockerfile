@@ -1,0 +1,42 @@
+ARG WORKSPACE_PATH=set_from_outside
+ARG BASE_IMAGE=set_from_outside
+ARG TRANSPORT_IMAGE=set_from_outside
+ARG ARCH=set_from_outside
+
+#############################################################################
+
+# FIRST STAGE: BUILD THE WORKSPACE
+FROM --platform=linux/${ARCH} $BASE_IMAGE AS stage_build
+
+ARG WORKSPACE_PATH
+
+COPY ./cache/${WORKSPACE_PATH}/ /${WORKSPACE_PATH}/
+
+# create colcon workspace
+RUN [ ! -e /${WORKSPACE_PATH}/install ] && cd /${WORKSPACE_PATH} && . /opt/ros/jazzy/setup.sh && colcon build || echo "[Docker]: workspace exists"
+
+# copy the sources from the local subfolder
+COPY src/ /${WORKSPACE_PATH}/src/
+
+RUN cd /${WORKSPACE_PATH} && . /opt/ros/jazzy/setup.sh && colcon build
+
+#############################################################################
+
+# SECOND STAGE: COPY THE WORKSPACE TO A BLANK APLINE IMAGE
+FROM --platform=linux/${ARCH} $TRANSPORT_IMAGE AS stage_cache_workspace
+
+ARG WORKSPACE_PATH
+
+COPY --from=stage_build /${WORKSPACE_PATH} /${WORKSPACE_PATH}
+
+#############################################################################
+
+# THIRD STAGE: copy the workspace to a final blank ROS-equipped base image
+FROM --platform=linux/${ARCH} $TRANSPORT_IMAGE AS stage_finalization
+
+ARG WORKSPACE_PATH
+
+COPY ./cache/${WORKSPACE_PATH}/src /${WORKSPACE_PATH}/src
+COPY ./cache/${WORKSPACE_PATH}/install /${WORKSPACE_PATH}/install
+
+CMD ["sh"]

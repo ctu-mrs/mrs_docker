@@ -15,13 +15,19 @@ cd ${MY_PATH}
 ## |                            setup                           |
 ## --------------------------------------------------------------
 
-LOCAL_TAG=mrs_uav_system:latest
-REGISTRY=ctumrs
+source ./common_vars.sh
 
-EXPORT_PATH=~/docker
+## | ------ check for the existance of the output folder ------ |
+
+[ ! -e $EXPORT_PATH ] && mkdir -p $EXPORT_PATH
 
 ## --------------------------------------------------------------
 ## |                           export                           |
 ## --------------------------------------------------------------
 
-docker save ${REGISTRY}/${LOCAL_TAG} | gzip > ${EXPORT_PATH}/${LOCAL_TAG}.tar.gz
+docker save ${OUTPUT_IMAGE} | gzip > ${EXPORT_PATH}/${OUTPUT_IMAGE}.tar.gz
+
+echo ""
+echo "$0: image exorted as ${EXPORT_PATH}/${OUTPUT_IMAGE}.tar.gz"
+echo ""
+

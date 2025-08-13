@@ -1,0 +1,17 @@
+name: docker
+root: ./
+socket_name: mrs
+attach: false
+tmux_options: -f /etc/ctu-mrs/tmux.conf
+startup_window: lazydocker
+windows:
+  - lazydocker:
+      layout: tiled
+      panes:
+        - export DOCKER_HOST=tcp://uav30:2375 && lazydocker
+        - export DOCKER_HOST=tcp://uav30:2375 && cd uav30 && history -s ./up.sh
+        - export UAV_NAME=uav30; ros2 run mrs_uav_status status.sh
+  - zenoh:
+      layout: tiled
+      panes:
+        - ros2 run rmw_zenoh_cpp rmw_zenohd
