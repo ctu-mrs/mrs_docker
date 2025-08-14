@@ -1,12 +1,9 @@
+# Don't change the volume names without also changing them in up.sh
 volumes:
 
   shared_data:
-    # external: true
-    # name: ${SESSION_NAME}_shared_data
 
   colcon_workspace:
-    # external: true
-    # name: ${SESSION_NAME}_colcon_workspace
 
 services:
 
