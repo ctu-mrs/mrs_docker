@@ -1,5 +1,7 @@
 # MRS UAV System docker environment
 
+For more info, please go to the [documentation page](https://ctu-mrs.github.io/docs/deployment/docker/).
+
 ## Installing docker
 
 ```bash
