@@ -12,7 +12,13 @@ The MRS images are available at our [ctumrs](https://hub.docker.com/u/ctumrs) do
 
 ## Compose sessions
 
-Example [compose sessions](./compose) for the MRS UAV System.
+### Real world
+
+Examples for real world [deployment](./deployment) of the MRS UAV System.
+
+### Simulation
+
+Examples for testing in a [simulation](./simulation) environment.
 
 ## Recipes
 
