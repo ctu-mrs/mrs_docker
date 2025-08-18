@@ -40,11 +40,12 @@ services:
       - /dev:/dev
       - shared_data:/etc/docker/shared_data
       - colcon_workspace:/etc/docker/colcon_workspace
+    privileged: true
     env_file:
       - ./stack.env
     command:  >
       bash -c "
-        source /etc/docker/colcon_workspace/install/setup.bash && ros2 launch my_package my_node.launch.py
+        source /etc/docker/colcon_workspace/install/setup.bash && ros2 launch my_package my_node.py
       "
 
   # starts the HW API for connecting the MRS UAV System to PX4

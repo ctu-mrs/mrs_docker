@@ -9,8 +9,15 @@ windows:
       layout: tiled
       panes:
         - export DOCKER_HOST=tcp://uav30:2375 && lazydocker
-        - export DOCKER_HOST=tcp://uav30:2375 && cd uav30 && history -s ./up.sh
         - export UAV_NAME=uav30; ros2 run mrs_uav_status status.sh
+  - workspace:
+      layout: tiled
+      panes:
+        - export DOCKER_HOST=tcp://uav30:2375 && cd ./colcon_workspace_builder
+  - compose:
+      layout: tiled
+      panes:
+        - export DOCKER_HOST=tcp://uav30:2375 && cd uav30 && ./up.sh
   - zenoh:
       layout: tiled
       panes:

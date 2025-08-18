@@ -19,6 +19,8 @@ RUN curl https://ctu-mrs.github.io/ppa2-${PPA_VARIANT}/add_ppa.sh | bash
 
 RUN apt-get -y install ros-jazzy-mrs-uav-system-full
 
+RUN apt-get -y install ros-jazzy-mavros-extras
+
 RUN apt-get -y install gdb
 
 CMD ["/ros_entrypoint.sh"]
