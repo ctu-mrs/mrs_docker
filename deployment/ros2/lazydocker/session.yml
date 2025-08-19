@@ -25,4 +25,4 @@ windows:
   - zenoh_router:
       layout: tiled
       panes:
-        - export export ZENOH_ROUTER_CONFIG_URI=./zenoh_router.json5 && ros2 run rmw_zenoh_cpp rmw_zenohd
+        - export ZENOH_ROUTER_CONFIG_URI=./zenoh_router.json5 && ros2 run rmw_zenoh_cpp rmw_zenohd
