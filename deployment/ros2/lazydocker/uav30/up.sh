@@ -49,7 +49,7 @@ SHARED_DATA_FOLDER=shared_data
 COLCON_WORKPSACE_FOLDER=colcon_workspace
 COLCON_BUILDER_PATH=./../colcon_workspace_builder
 
-# remove the old workspace (if it gonna be updated)
+# remove the old workspace volume (if it is gonna be updated)
 if $COPY_WORKSPACE; then
   echo "$0: removing old colcon_workspace volume"
   docker volume rm -f ${SESSION_NAME}_${COLCON_WORKPSACE_FOLDER} > /dev/null
