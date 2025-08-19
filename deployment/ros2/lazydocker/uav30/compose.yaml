@@ -76,6 +76,17 @@ services:
       - ./stack.env
     command: bash -c "ros2 launch mrs_uav_autostart automatic_start.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
 
+  static_tfs:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - /dev:/dev
+      - shared_data:/etc/docker/shared_data:consistent
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "/etc/docker/shared_data/static_tfs.sh"
+
   # `rosbag record`
   # - wayForOffboard will unblock during takeoff
   # - the rosbags are going to be placed in
