@@ -32,7 +32,7 @@ services:
       - shared_data:/etc/docker/shared_data:consistent
       - colcon_workspace:/etc/docker/colcon_workspace:consistent
 
-  # # zenoh router
+  # zenoh router
   zenoh:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
@@ -45,11 +45,14 @@ services:
     command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
 
   vio:
-    image: ctumrs/mrs_uav_system:stable
+    image: ctumrs/mrs_uav_system:jakub # should be swapped for ctumrs/bluefox2:stable once the packages are available in it
     network_mode: host
     volumes:
       - /dev/:/dev/
     privileged: true
     env_file:
       - ./stack.env
-    command: bash -c "ros2 launch mrs_open_vins_core vio.launch.py enable_bluefox_cam_and_imu:=true"
+    entrypoint: [
+      "bash", "-c",
+      "source /opt/ros/jazzy/setup.sh && ros2 launch mrs_open_vins_core vio.launch.py enable_bluefox_cam_and_imu:=true"
+    ]

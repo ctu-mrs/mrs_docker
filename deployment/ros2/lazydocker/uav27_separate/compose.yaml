@@ -32,7 +32,7 @@ services:
       - shared_data:/etc/docker/shared_data:consistent
       - colcon_workspace:/etc/docker/colcon_workspace:consistent
 
-  # # zenoh router
+  # zenoh router
   zenoh:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
@@ -45,7 +45,7 @@ services:
     command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
 
   bluefox_imu:
-    image: ctumrs/mrs_uav_system:stable
+    image: ctumrs/mrs_uav_system:unstable
     network_mode: host
     volumes:
       - /dev/:/dev/
@@ -55,7 +55,7 @@ services:
     command: bash -c "ros2 launch mrs_serial vio_imu.launch.py"
 
   bluefox:
-    image: ctumrs/bluefox2:stable  # this is from the different image, because it is not multiplatform package
+    image: ctumrs/bluefox2:unstable  # this is from the different image, because it is not multiplatform package
     network_mode: host
     volumes:
       - /dev/:/dev/
@@ -64,7 +64,7 @@ services:
       - ./stack.env
 
   imu_filter:
-    image: ctumrs/mrs_uav_system:stable
+    image: ctumrs/mrs_uav_system:unstable
     network_mode: host
     volumes:
       - /dev/:/dev/
@@ -74,7 +74,7 @@ services:
     command: bash -c "ros2 launch mrs_vins_imu_filter filter_icm_42688.py"
 
   vio:
-    image: ctumrs/mrs_uav_system:stable
+    image: ctumrs/mrs_uav_system:unstable
     network_mode: host
     volumes:
       - /dev/:/dev/
