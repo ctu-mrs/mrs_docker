@@ -1,0 +1,84 @@
+# This example shows the way how to start the VIO in the Docker container
+# through Docker compose/lazydocker on a drone. It uses four separate
+# launchfiles/Docker containers to launch four nodes:
+#   - Bluefox2 camera driver
+#   - IMU on a Bluefox2 module by MRS
+#   - IMU filter
+#   - OpwnVINS VIO
+
+# The launchfile 'vio.launch.py' is launching only the VIO when argument
+# 'enable_bluefox_cam_and_imu' is set to false. If it would be set to true,
+# all four nodes would be launched in the single Docker container.
+
+# Don't change the volume names without also changing them in up.sh
+volumes:
+
+  # Going to be filled with the contents of the
+  #       ./shared_data/
+  # folder.
+  shared_data:
+
+  # Going to be filled with the workspace built by
+  #       ../colcon_workspace_builder/
+  # folder.
+  colcon_workspace:
+
+services:
+
+  # this container primes the shared volumes and allows the content to be place in them
+  init:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    volumes:
+      - shared_data:/etc/docker/shared_data:consistent
+      - colcon_workspace:/etc/docker/colcon_workspace:consistent
+
+  # # zenoh router
+  zenoh:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    env_file:
+      - ./stack.env
+    volumes:
+      - /dev:/dev
+      - shared_data:/etc/docker/shared_data
+      - colcon_workspace:/etc/docker/colcon_workspace
+    command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
+
+  bluefox_imu:
+    image: ctumrs/mrs_uav_system:stable
+    network_mode: host
+    volumes:
+      - /dev/:/dev/
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_serial vio_imu.launch.py"
+
+  bluefox:
+    image: ctumrs/bluefox2:stable  # this is from the different image, because it is not multiplatform package
+    network_mode: host
+    volumes:
+      - /dev/:/dev/
+    privileged: true
+    env_file:
+      - ./stack.env
+
+  imu_filter:
+    image: ctumrs/mrs_uav_system:stable
+    network_mode: host
+    volumes:
+      - /dev/:/dev/
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_vins_imu_filter filter_icm_42688.py"
+
+  vio:
+    image: ctumrs/mrs_uav_system:stable
+    network_mode: host
+    volumes:
+      - /dev/:/dev/
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_open_vins_core vio.launch.py enable_bluefox_cam_and_imu:=false"
