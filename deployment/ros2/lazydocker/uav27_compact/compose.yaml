@@ -45,7 +45,7 @@ services:
     command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
 
   vio:
-    image: ctumrs/mrs_uav_system:jakub # should be swapped for ctumrs/bluefox2:stable once the packages are available in it
+    image: ctumrs/bluefox2:unstable # should be swapped for stable once the packages are available in it
     network_mode: host
     volumes:
       - /dev/:/dev/
