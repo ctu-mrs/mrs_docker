@@ -96,7 +96,7 @@ services:
     command: bash -c "waitForOffboard; /etc/docker/shared_data/record.sh"
 
   # logging of all the docker containers within this session
-  # - the logs are going to be place in
+  # - the logs are going to be placed in
   #       /home/mrs/docker/${SESSION_NAME}/logs
   dogtail:
     image: klaxalk/dogtail:latest
