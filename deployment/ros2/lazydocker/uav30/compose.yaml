@@ -90,7 +90,7 @@ services:
     volumes:
       - /dev/:/dev/
       - shared_data:/etc/docker/shared_data
-      - /home/mrs/docker/${SESSION_NAME}/bag_files:/etc/docker/bag_files:consistent
+      - ${HOME}/docker/${SESSION_NAME}/bag_files:/etc/docker/bag_files:consistent
     env_file:
       - ./stack.env
     command: bash -c "waitForOffboard; /etc/docker/shared_data/record.sh"
@@ -104,4 +104,4 @@ services:
       - SESSION_NAME=${SESSION_NAME}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /home/mrs/docker/${SESSION_NAME}/logs:/etc/logs:consistent
+      - ${HOME}/docker/${SESSION_NAME}/logs:/etc/logs:consistent
