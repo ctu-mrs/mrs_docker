@@ -16,9 +16,6 @@ services:
   # this container primes the shared volumes and allows the content to be place in them
   init:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
-    volumes:
-      - shared_data:/etc/docker/shared_data:consistent
-      - colcon_workspace:/etc/docker/colcon_workspace:consistent
 
   # zenoh router
   zenoh:
@@ -76,6 +73,7 @@ services:
     network_mode: host
     volumes:
       - /dev/:/dev/
+      - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
     command: bash -c "ros2 launch mrs_uav_autostart automatic_start.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
@@ -91,8 +89,8 @@ services:
       - SESSION_NAME=${SESSION_NAME}
     volumes:
       - /dev/:/dev/
+      - shared_data:/etc/docker/shared_data
       - /home/mrs/docker/${SESSION_NAME}/bag_files:/etc/docker/bag_files:consistent
-      - shared_data:/etc/docker/shared_data:consistent
     env_file:
       - ./stack.env
     command: bash -c "waitForOffboard; /etc/docker/shared_data/record.sh"
