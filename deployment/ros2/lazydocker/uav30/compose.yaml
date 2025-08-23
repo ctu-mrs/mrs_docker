@@ -16,6 +16,9 @@ services:
   # this container primes the shared volumes and allows the content to be place in them
   init:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    volumes:
+      - shared_data:/etc/docker/shared_data:consistent
+      - colcon_workspace:/etc/docker/colcon_workspace:consistent
 
   # zenoh router
   zenoh:
@@ -23,9 +26,6 @@ services:
     network_mode: host
     env_file:
       - ./stack.env
-    volumes:
-      - /dev:/dev
-      - shared_data:/etc/docker/shared_data
     command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
 
   # starts a custom node from your colcon_workspace
