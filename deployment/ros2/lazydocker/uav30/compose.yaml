@@ -39,7 +39,7 @@ services:
     privileged: true
     env_file:
       - ./stack.env
-    command:  >
+    command: >
       bash -c "
         [ -z "$(ls -A /etc/docker/colcon_workspace)" ] && exit 0;
         source /etc/docker/colcon_workspace/install/setup.bash && ros2 launch my_package my_node.py
