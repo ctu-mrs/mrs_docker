@@ -1,0 +1,18 @@
+{{- if .Values.initPhase }}
+apiVersion: v1
+kind: Pod
+metadata: { name: init }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: init
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      command: [sleep, infinity]
+      volumeMounts:
+        - name: shared-data
+          mountPath: /etc/docker/shared_data
+  volumes:
+    - name: shared-data
+      persistentVolumeClaim:
+        claimName: pvc-shared-data
+{{- end }}

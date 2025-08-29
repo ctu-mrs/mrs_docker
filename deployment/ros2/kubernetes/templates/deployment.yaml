@@ -1,0 +1,128 @@
+{{- if not .Values.initPhase }}
+apiVersion: v1
+kind: Pod
+metadata: { name: zenoh }
+spec:
+  restartPolicy: OnFailure
+  hostNetwork: true
+  containers:
+    - name: zenoh
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      args: [
+        bash, -c,
+        "export ZENOH_ROUTER_CONFIG_URI=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/zenoh/uav_router.json5;
+        exec ros2 run rmw_zenoh_cpp rmw_zenohd"
+      ]
+---
+apiVersion: v1
+kind: Pod
+metadata: { name: custom-node }
+spec:
+  restartPolicy: OnFailure
+  hostNetwork: true
+  containers:
+    - name: custom-node
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      securityContext: { privileged: true }
+      envFrom:
+        - configMapRef: { name: env }
+      args: [
+        bash, -c,
+        '[ -z "$(ls -A /etc/docker/colcon_workspace)" ] && exit 0;
+        source /etc/docker/colcon_workspace/install/setup.bash && ros2 launch my_package my_node.py'
+      ]
+      volumeMounts:
+        - name: dev
+          mountPath: /dev
+        - name: shared-data
+          mountPath: /etc/docker/shared_data
+        - name: colcon
+          mountPath: /etc/docker/colcon_workspace
+  volumes:
+    - name: dev
+      hostPath: { path: /dev }
+    - name: shared-data
+      persistentVolumeClaim: { claimName: pvc-shared-data }
+    - name: colcon
+      persistentVolumeClaim: { claimName: pvc-colcon-workspace }
+---
+apiVersion: v1
+kind: Pod
+metadata: { name: uav-system }
+spec:
+  restartPolicy: OnFailure
+  hostNetwork: true
+  containers:
+    - name: uav-core
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      envFrom:
+        - configMapRef: { name: env }
+      args: [
+        bash, -c,
+        "exec ros2 launch mrs_uav_core core.py \
+        platform_config:=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/mrs_uav_system/${UAV_TYPE}.yaml \
+        world_config:=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/worlds/world_${WORLD_NAME}.yaml \
+        custom_config:=/etc/docker/shared_data/custom_config.yaml \
+        network_config:=/etc/docker/shared_data/network_config.yaml"
+      ]
+      volumeMounts:
+        - name: shared-data
+          mountPath: /etc/docker/shared_data
+
+    - name: hw-api
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      securityContext: { privileged: true }
+      envFrom:
+        - configMapRef: { name: env }
+      args: [ros2, launch, mrs_uav_px4_api, api.py]
+      volumeMounts:
+        - name: dev
+          mountPath: /dev
+  volumes:
+    - name: dev
+      hostPath: { path: /dev }
+    - name: shared-data
+      persistentVolumeClaim: { claimName: pvc-shared-data }
+---
+apiVersion: v1
+kind: Pod
+metadata: { name: automatic-start }
+spec:
+  restartPolicy: OnFailure
+  hostNetwork: true
+  containers:
+    - name: automatic-start
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      envFrom:
+        - configMapRef: { name: env }
+      args: [ros2, launch, mrs_uav_autostart, automatic_start.py, custom_config:=/etc/docker/shared_data/automatic_start.yaml]
+      volumeMounts:
+        - name: shared-data
+          mountPath: /etc/docker/shared_data
+  volumes:
+    - name: shared-data
+      persistentVolumeClaim: { claimName: pvc-shared-data }
+---
+apiVersion: v1
+kind: Pod
+metadata: { name: rosbag }
+spec:
+  restartPolicy: OnFailure
+  hostNetwork: true
+  containers:
+    - name: rosbag
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      envFrom:
+        - configMapRef: { name: env }
+      args: [bash, -c, "waitForOffboard; /etc/docker/shared_data/record.sh"]
+      volumeMounts:
+        - name: shared-data
+          mountPath: /etc/docker/shared_data
+        - name: bagfiles
+          mountPath: /etc/docker/bag_files
+  volumes:
+    - name: shared-data
+      persistentVolumeClaim: { claimName: pvc-shared-data }
+    - name: bagfiles
+      hostPath: { path: {{ .Values.home }}/docker/just_flying/bag_files }
+{{- end }}

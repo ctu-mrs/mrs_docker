@@ -1,0 +1,13 @@
+{{- if not .Values.initPhase }}
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: env }
+data:
+  RUN_TYPE: "{{ .Values.runType }}"
+  UAV_NAME: "{{ .Values.uavName }}"
+  UAV_TYPE: "{{ .Values.uavType }}"
+  UAV_MASS: "{{ .Values.uavMass }}"
+  WORLD_NAME: "{{ .Values.worldName }}"
+  OLD_PX4_FW: "{{ .Values.oldPx4Fw }}"
+  RMW_IMPLEMENTATION: "{{ .Values.rmwImplementation }}"
+{{- end }}
