@@ -124,5 +124,5 @@ spec:
     - name: shared-data
       persistentVolumeClaim: { claimName: pvc-shared-data }
     - name: bagfiles
-      hostPath: { path: {{ .Values.home }}/docker/just_flying/bag_files }
+      hostPath: { path: {{ .Values.homeFolder }}/docker/just_flying/bag_files }
 {{- end }}

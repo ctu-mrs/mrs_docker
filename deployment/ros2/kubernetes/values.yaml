@@ -1,5 +1,5 @@
 mrsUavSystemVersion: stable
-home: /home/mrs
+homeFolder: /home/mrs
 runType: realworld
 uavName: uav30
 uavType: x500
