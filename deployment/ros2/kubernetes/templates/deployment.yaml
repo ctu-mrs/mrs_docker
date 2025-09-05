@@ -8,10 +8,12 @@ spec:
   containers:
     - name: zenoh
       image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      envFrom:
+        - configMapRef: { name: env }
       args: [
         bash, -c,
         "export ZENOH_ROUTER_CONFIG_URI=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/zenoh/uav_router.json5;
-        exec ros2 run rmw_zenoh_cpp rmw_zenohd"
+        ros2 run rmw_zenoh_cpp rmw_zenohd"
       ]
 ---
 apiVersion: v1
@@ -53,22 +55,6 @@ spec:
   restartPolicy: OnFailure
   hostNetwork: true
   containers:
-    - name: uav-core
-      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
-      envFrom:
-        - configMapRef: { name: env }
-      args: [
-        bash, -c,
-        "exec ros2 launch mrs_uav_core core.py \
-        platform_config:=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/mrs_uav_system/${UAV_TYPE}.yaml \
-        world_config:=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/worlds/world_${WORLD_NAME}.yaml \
-        custom_config:=/etc/docker/shared_data/custom_config.yaml \
-        network_config:=/etc/docker/shared_data/network_config.yaml"
-      ]
-      volumeMounts:
-        - name: shared-data
-          mountPath: /etc/docker/shared_data
-
     - name: hw-api
       image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
       securityContext: { privileged: true }
@@ -78,6 +64,21 @@ spec:
       volumeMounts:
         - name: dev
           mountPath: /dev
+    - name: uav-core
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      envFrom:
+        - configMapRef: { name: env }
+      args: [
+        bash, -c,
+        "ros2 launch mrs_uav_core core.py \
+        platform_config:=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/mrs_uav_system/${UAV_TYPE}.yaml \
+        world_config:=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/worlds/world_${WORLD_NAME}.yaml \
+        custom_config:=/etc/docker/shared_data/custom_config.yaml \
+        network_config:=/etc/docker/shared_data/network_config.yaml"
+      ]
+      volumeMounts:
+        - name: shared-data
+          mountPath: /etc/docker/shared_data
   volumes:
     - name: dev
       hostPath: { path: /dev }
@@ -95,11 +96,29 @@ spec:
       image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
       envFrom:
         - configMapRef: { name: env }
-      args: [ros2, launch, mrs_uav_autostart, automatic_start.py, custom_config:=/etc/docker/shared_data/automatic_start.yaml]
+      args: [ros2, launch, mrs_uav_autostart, automatic_start.py]
+---
+apiVersion: v1
+kind: Pod
+metadata: { name: static-tfs }
+spec:
+  restartPolicy: OnFailure
+  hostNetwork: true
+  containers:
+    - name: static-tfs
+      image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
+      securityContext: { privileged: true }
+      envFrom:
+        - configMapRef: { name: env }
+      args: [bash, /etc/docker/shared_data/static_tfs.sh]
       volumeMounts:
+        - name: dev
+          mountPath: /dev
         - name: shared-data
           mountPath: /etc/docker/shared_data
   volumes:
+    - name: dev
+      hostPath: { path: /dev }
     - name: shared-data
       persistentVolumeClaim: { claimName: pvc-shared-data }
 ---
