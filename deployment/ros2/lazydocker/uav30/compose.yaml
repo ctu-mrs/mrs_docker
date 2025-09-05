@@ -24,6 +24,8 @@ services:
   zenoh:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
+    env_file:
+      - ./stack.env
     command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
 
   # starts a custom node from your colcon_workspace
@@ -59,7 +61,6 @@ services:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
     volumes:
-      - /dev:/dev
       - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
@@ -69,12 +70,12 @@ services:
   automatic_start:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
-    volumes:
-      - /dev/:/dev/
-      - shared_data:/etc/docker/shared_data
+    #volumes:
+    #  - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
-    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
+    # custom_config:=/etc/docker/shared_data/automatic_start.yaml
+    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.py"
 
   static_tfs:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
@@ -97,7 +98,6 @@ services:
     environment:
       - SESSION_NAME=${SESSION_NAME}
     volumes:
-      - /dev/:/dev/
       - shared_data:/etc/docker/shared_data
       - ${HOME}/docker/${SESSION_NAME}/bag_files:/etc/docker/bag_files:consistent
     env_file:
