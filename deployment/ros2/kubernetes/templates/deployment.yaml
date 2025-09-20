@@ -31,7 +31,7 @@ spec:
       args: [
         bash, -c,
         '[ -z "$(ls -A /etc/docker/colcon_workspace)" ] && exit 0;
-        source /etc/docker/colcon_workspace/install/setup.bash && ros2 launch my_package my_node.py'
+        source /etc/docker/colcon_workspace/install/setup.bash && ros2 launch my_package my_node.launch.py'
       ]
       volumeMounts:
         - name: dev
@@ -60,7 +60,7 @@ spec:
       securityContext: { privileged: true }
       envFrom:
         - configMapRef: { name: env }
-      args: [ros2, launch, mrs_uav_px4_api, api.py]
+      args: [ros2, launch, mrs_uav_px4_api, api.launch.py]
       volumeMounts:
         - name: dev
           mountPath: /dev
@@ -70,7 +70,7 @@ spec:
         - configMapRef: { name: env }
       args: [
         bash, -c,
-        "ros2 launch mrs_uav_core core.py \
+        "ros2 launch mrs_uav_core core.launch.py \
         platform_config:=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/mrs_uav_system/${UAV_TYPE}.yaml \
         world_config:=$(ros2 pkg prefix mrs_uav_deployment)/share/mrs_uav_deployment/config/worlds/world_${WORLD_NAME}.yaml \
         custom_config:=/etc/docker/shared_data/custom_config.yaml \
@@ -96,7 +96,7 @@ spec:
       image: ctumrs/mrs_uav_system:{{ .Values.mrsUavSystemVersion }}
       envFrom:
         - configMapRef: { name: env }
-      args: [ros2, launch, mrs_uav_autostart, automatic_start.py]
+      args: [ros2, launch, mrs_uav_autostart, automatic_start.launch.py]
 ---
 apiVersion: v1
 kind: Pod

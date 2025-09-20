@@ -42,7 +42,7 @@ services:
     env_file:
       - ./stack.env
     tty: true
-    command: bash -c "ros2 launch mrs_uav_px4_api api.py"
+    command: bash -c "ros2 launch mrs_uav_px4_api api.launch.py"
 
   # starts the HW API for connecting the MRS UAV System to PX4
   mavros:
@@ -57,7 +57,7 @@ services:
     env_file:
       - ./stack.env
     tty: true
-    command: bash -c "ros2 launch mrs_uav_px4_api mavros_realworld.py"
+    command: bash -c "ros2 launch mrs_uav_px4_api mavros_realworld.launch.py"
 
   # starts the MRS UAV System's core
   uav_core:
@@ -72,7 +72,7 @@ services:
     env_file:
       - ./stack.env
     tty: true
-    command: bash -c "ros2 launch mrs_uav_core core.py platform_config:=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/mrs_uav_system/${UAV_TYPE}.yaml world_config:=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/worlds/world_${WORLD_NAME}.yaml custom_config:=/etc/docker/shared_data/custom_config.yaml network_config:=/etc/docker/shared_data/network_config.yaml"
+    command: bash -c "ros2 launch mrs_uav_core core.launch.py platform_config:=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/mrs_uav_system/${UAV_TYPE}.yaml world_config:=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment/config/worlds/world_${WORLD_NAME}.yaml custom_config:=/etc/docker/shared_data/custom_config.yaml network_config:=/etc/docker/shared_data/network_config.yaml"
 
   # starts the node that handles automatic initialization of the system and takeoff
   automatic_start:
@@ -86,7 +86,7 @@ services:
     env_file:
       - ./stack.env
     tty: true
-    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
+    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.launch.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
 
   # starts `rosbag record`
   rosbag:
