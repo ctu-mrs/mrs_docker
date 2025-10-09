@@ -1,3 +1,9 @@
+use_sim_time: False
+
+
+remappings:
+  /imu_raw: /uav30/imu_filtered
+
 mrs_uav_managers:
 
   uav_manager:

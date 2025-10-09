@@ -8,20 +8,20 @@ windows:
   - lazydocker:
       layout: 6102,174x53,0,0[174x38,0,0,0,174x14,0,39,5]
       panes:
-        - lazydocker
+        - export DOCKER_HOST=tcp://uav30:2375 && lazydocker
         - export UAV_NAME=uav30; ros2 run mrs_uav_status status.sh
   - compose:
       layout: tiled
       panes:
-        - cd uav30 && ./up.sh
+        - export DOCKER_HOST=tcp://uav30:2375 && cd uav30 && ./up.sh
   - workspace:
       layout: tiled
       panes:
-        - cd ./colcon_workspace_builder
+        - export DOCKER_HOST=tcp://uav30:2375 && cd ./colcon_workspace_builder
   - rviz:
       layout: tiled
       panes:
-        - ros2 run rviz2 rviz2 -d ./config.rviz
+        - export DOCKER_HOST=tcp://uav30:2375 && ros2 run rviz2 rviz2 -d ./config.rviz
   # - zenoh_router:
   #     layout: tiled
   #     panes:

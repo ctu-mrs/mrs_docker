@@ -114,3 +114,25 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME}/docker/${SESSION_NAME}/logs:/etc/logs:consistent
+      
+  bluefox:
+    image: ctumrs/bluefox2:unstable
+    network_mode: host
+    privileged: true
+    volumes:
+      - /dev:/dev
+      - shared_data:/etc/docker/shared_data
+    env_file:
+      - ./stack.env
+    entrypoint: ["/bin/bash", "-c"]
+    command: ["source /opt/ros/jazzy/setup.sh && ros2 launch mrs_open_vins_core vio_real.launch.py custom_config:=/etc/docker/shared_data/custom_config.yaml use_sim_time:=false"]
+
+  vins_republisher:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    privileged: true
+    volumes:
+      - shared_data:/etc/docker/shared_data
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_vins_republisher vins_republisher.launch.py"
