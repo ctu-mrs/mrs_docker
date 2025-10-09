@@ -44,21 +44,6 @@ services:
     tty: true
     command: bash -c "ros2 launch mrs_uav_px4_api api.launch.py"
 
-  # starts the HW API for connecting the MRS UAV System to PX4
-  mavros:
-    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
-    network_mode: host
-    depends_on:
-      copy_shared_data:
-        condition: service_completed_successfully
-    volumes:
-      - /dev:/dev
-    privileged: true
-    env_file:
-      - ./stack.env
-    tty: true
-    command: bash -c "ros2 launch mrs_uav_px4_api mavros_realworld.launch.py"
-
   # starts the MRS UAV System's core
   uav_core:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
