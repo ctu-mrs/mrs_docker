@@ -1,0 +1,5 @@
+remappings:
+  /uav30/vins_odom_in: /uav30/odomimu
+  /uav30/vins_odom_out: /uav30/vins_imu
+
+use_sim_time: False

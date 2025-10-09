@@ -1,8 +1,8 @@
 use_sim_time: False
 
-
 remappings:
   /imu_raw: /uav30/imu_filtered
+  /image_raw: /uav30/image_raw
 
 mrs_uav_managers:
 

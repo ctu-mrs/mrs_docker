@@ -128,11 +128,11 @@ services:
     command: ["source /opt/ros/jazzy/setup.sh && ros2 launch mrs_open_vins_core vio_real.launch.py custom_config:=/etc/docker/shared_data/custom_config.yaml use_sim_time:=false"]
 
   vins_republisher:
-    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    image: mrs_uav_system:testo
     network_mode: host
     privileged: true
     volumes:
       - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
-    command: bash -c "ros2 launch mrs_vins_republisher vins_republisher.launch.py"
+    command: bash -c "ros2 launch mrs_vins_republisher vins_republisher.launch.py custom_config:=/etc/docker/shared_data/custom_config_vins_republisher.yaml"
