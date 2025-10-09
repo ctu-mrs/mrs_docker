@@ -116,12 +116,13 @@ services:
       - ${HOME}/docker/${SESSION_NAME}/logs:/etc/logs:consistent
       
   bluefox:
-    image: ctumrs/bluefox2:unstable
+    image: ctumrs/bluefox:blfx
     network_mode: host
     privileged: true
     volumes:
       - /dev:/dev
       - shared_data:/etc/docker/shared_data
+      - ./vio_params:/opt/ros/jazzy/share/ov_msckf/config
     env_file:
       - ./stack.env
     entrypoint: ["/bin/bash", "-c"]

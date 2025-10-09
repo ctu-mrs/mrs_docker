@@ -1,0 +1,145 @@
+loop_depth:
+  compressed:
+    format: jpeg
+    jpeg_quality: 95
+    png_level: 3
+    tiff:
+      res_unit: inch
+      xdpi: -1
+      ydpi: -1
+  compressedDepth:
+    depth_max: 10.0
+    depth_quantization: 100.0
+    format: png
+    png_level: 3
+  depth_max: 10.0
+  depth_quantization: 100.0
+  format: jpeg
+  jpeg_quality: 95
+  keyframe_frequency: 64
+  optimize_for: true
+  png_level: 3
+  quality: 31
+  target_bitrate: 800000
+  theora:
+    keyframe_frequency: 64
+    optimize_for: true
+    quality: 31
+    target_bitrate: 800000
+  tiff:
+    res_unit: inch
+    xdpi: -1
+    ydpi: -1
+  zstd:
+    zstd_level: 3
+loop_depth_colored:
+  compressed:
+    format: jpeg
+    jpeg_quality: 95
+    png_level: 3
+    tiff:
+      res_unit: inch
+      xdpi: -1
+      ydpi: -1
+  compressedDepth:
+    depth_max: 10.0
+    depth_quantization: 100.0
+    format: png
+    png_level: 3
+  depth_max: 10.0
+  depth_quantization: 100.0
+  format: jpeg
+  jpeg_quality: 95
+  keyframe_frequency: 64
+  optimize_for: true
+  png_level: 3
+  quality: 31
+  target_bitrate: 800000
+  theora:
+    keyframe_frequency: 64
+    optimize_for: true
+    quality: 31
+    target_bitrate: 800000
+  tiff:
+    res_unit: inch
+    xdpi: -1
+    ydpi: -1
+  zstd:
+    zstd_level: 3
+trackhist:
+  compressed:
+    format: jpeg
+    jpeg_quality: 95
+    png_level: 3
+    tiff:
+      res_unit: inch
+      xdpi: -1
+      ydpi: -1
+  compressedDepth:
+    depth_max: 10.0
+    depth_quantization: 100.0
+    format: png
+    png_level: 3
+  depth_max: 10.0
+  depth_quantization: 100.0
+  format: jpeg
+  jpeg_quality: 95
+  keyframe_frequency: 64
+  optimize_for: true
+  png_level: 3
+  quality: 31
+  target_bitrate: 800000
+  theora:
+    keyframe_frequency: 64
+    optimize_for: true
+    quality: 31
+    target_bitrate: 800000
+  tiff:
+    res_unit: inch
+    xdpi: -1
+    ydpi: -1
+  zstd:
+    zstd_level: 3
+cam_frame_name: cam0
+config_path: /opt/ros/jazzy/share/mrs_open_vins_core/config/realworld_bluefox_front/estimator_config.yaml
+frames_prefix: uav30
+global_frame_name: global
+imu_frame_name: imu
+loop_depth:
+enable_pub_plugins:
+- image_transport/compressedDepth
+- image_transport/compressed
+- image_transport/raw
+- image_transport/theora
+- image_transport/zstd
+loop_depth_colored:
+enable_pub_plugins:
+- image_transport/compressedDepth
+- image_transport/compressed
+- image_transport/raw
+- image_transport/theora
+- image_transport/zstd
+qos_overrides:
+/parameter_events:
+  publisher:
+    depth: 1000
+    durability: volatile
+    history: keep_last
+    reliability: reliable
+/tf:
+  publisher:
+    depth: 100
+    durability: volatile
+    history: keep_last
+    reliability: reliable
+start_type_description_service: true
+topic_camera0: /cam0/image_raw
+topic_imu: /imu0
+trackhist:
+enable_pub_plugins:
+- image_transport/compressedDepth
+- image_transport/compressed
+- image_transport/raw
+- image_transport/theora
+- image_transport/zstd
+use_sim_time: false
