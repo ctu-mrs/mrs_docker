@@ -24,7 +24,7 @@ source ./common_vars.sh
 # initialize the cache
 [ ! -e ${CACHE_PATH}/${WORKSPACE_PATH} ] && mkdir -p ./${CACHE_PATH}/${WORKSPACE_PATH}
 
-PASS_TO_DOCKER_BUILD="Dockerfile src ${CACHE_PATH}/${WORKSPACE_PATH}"
+PASS_TO_DOCKER_BUILD="Dockerfile src ${CACHE_PATH}/${WORKSPACE_PATH} colcon_defaults.yaml"
 
 docker buildx use default
 

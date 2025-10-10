@@ -4,6 +4,6 @@ FROM ${BASE_IMAGE}
 
 RUN apt-get -y update
 
-RUN apt-get -y install ros-jazzy-mavros-extras
+RUN apt-get -y upgrade
 
 CMD ["/ros_entrypoint.sh"]

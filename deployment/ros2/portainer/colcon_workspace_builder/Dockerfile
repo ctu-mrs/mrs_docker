@@ -18,6 +18,9 @@ RUN [ ! -e /${WORKSPACE_PATH}/install ] && cd /${WORKSPACE_PATH} && . /opt/ros/j
 # copy the sources from the local subfolder
 COPY src/ /${WORKSPACE_PATH}/src/
 
+# copy colcon_defaults.yaml that configures colcon
+COPY colcon_defaults.yaml /${WORKSPACE_PATH}/
+
 RUN cd /${WORKSPACE_PATH} && . /opt/ros/jazzy/setup.sh && colcon build
 
 #############################################################################
