@@ -18,7 +18,6 @@ Arguments:
 "
 
 if [ $# -ge 1 ]; then
-
   # shift
   OPTIND=1
 
@@ -46,13 +45,12 @@ fi
 source ./setup.sh
 
 SHARED_DATA_FOLDER=shared_data
-COLCON_WORKPSACE_FOLDER=colcon_workspace
 COLCON_BUILDER_PATH=./../colcon_workspace_builder
 
 # remove the old workspace volume (if it is gonna be updated)
 if $COPY_WORKSPACE; then
   echo "$0: removing old colcon_workspace volume"
-  docker volume rm -f ${SESSION_NAME}_${COLCON_WORKPSACE_FOLDER} > /dev/null
+  docker volume rm -f ${SESSION_NAME}_colcon_workspace > /dev/null
 fi
 
 echo "$0: removing old shared_data volume"
@@ -66,15 +64,12 @@ echo "$0: copying shared data"
 tar -czh ./${SHARED_DATA_FOLDER} | docker compose -p ${SESSION_NAME} cp - init:/etc/docker
 
 # if we should copy the compiled workspace
-if $COPY_WORKSPACE && [ -e ${COLCON_BUILDER_PATH}/cache/etc/docker/$COLCON_WORKPSACE_FOLDER/install ]; then
-
+if $COPY_WORKSPACE && [ -e ${COLCON_BUILDER_PATH}/cache/etc/docker/colcon_workspace/install ]; then
   echo "$0: copying colcon workspace"
 
   # 1. compress the build & install folder from the workspace and pass it to the "colcon_workspace" volume
-  tar -C ${COLCON_BUILDER_PATH}/cache/etc/docker --exclude build --exclude log -czh ./${COLCON_WORKPSACE_FOLDER} | docker compose -p ${SESSION_NAME} cp - init:/etc/docker
-
+  tar -C ${COLCON_BUILDER_PATH}/cache/etc/docker --exclude build --exclude log -czh ./colcon_workspace | docker compose -p ${SESSION_NAME} cp - init:/etc/docker
 fi
 
-# start the main session
-# -d starts in detached mode (will not block the terminal)
+# start the main session, -d starts in detached mode (will not block the terminal)
 docker compose -p $SESSION_NAME --env-file ./stack.env up -d
