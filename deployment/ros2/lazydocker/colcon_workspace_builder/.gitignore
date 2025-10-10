@@ -1,1 +1,3 @@
 cache
+src/*
+!src/PLACE_OR_LINK_YOUR_PACKAGES_HERE
