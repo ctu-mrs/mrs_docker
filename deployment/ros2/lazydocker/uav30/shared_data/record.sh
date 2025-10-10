@@ -1,6 +1,6 @@
 #!/bin/bash
 
-target_path="$HOME/bag_files/latest"
+target_path="$1"
 
 # By default, we record everything.
 # Except for this list of EXCLUDED topics:
@@ -17,7 +17,7 @@ exclude=(
 # or just a CRASH.
 
 # this is how you exclude a topic with the use of wildcards
-# '.*control_manager.*'
+# '.*image_raw$'
 )
 
 if [ ! -e "$target_path" ]; then

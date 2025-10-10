@@ -97,12 +97,13 @@ services:
     network_mode: host
     environment:
       - SESSION_NAME=${SESSION_NAME}
+      - DRONE_USER_NAME=${DRONE_USER_NAME}
     volumes:
       - shared_data:/etc/docker/shared_data
-      - ${HOME}/docker/${SESSION_NAME}/bag_files:/etc/docker/bag_files:consistent
+      - /home/${DRONE_USER_NAME}/docker/${SESSION_NAME}/bag_files:/etc/docker/bag_files:consistent
     env_file:
       - ./stack.env
-    command: bash -c "waitForOffboard; /etc/docker/shared_data/record.sh"
+    command: bash -c "/etc/docker/shared_data/record.sh /etc/docker/bag_files"
 
   # logging of all the docker containers within this session
   # - the logs are going to be placed in
@@ -111,6 +112,7 @@ services:
     image: klaxalk/dogtail:latest
     environment:
       - SESSION_NAME=${SESSION_NAME}
+      - DRONE_USER_NAME=${DRONE_USER_NAME}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${HOME}/docker/${SESSION_NAME}/logs:/etc/logs:consistent
+      - /home/${DRONE_USER_NAME}/docker/${SESSION_NAME}/logs:/etc/logs:consistent
