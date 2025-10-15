@@ -12,7 +12,7 @@
 
     /// See https://docs.rs/zenoh/latest/zenoh/config/struct.EndPoint.html
     endpoints: [
-      "tcp/uav30:7447",
+      "tcp/uav27:7447",
     ],
 
     /// exit from application, if timeout exceed

@@ -1,5 +1,5 @@
 # tag for the source image agains which the colcon workspace will be built
-export BASE_IMAGE=ctumrs/mrs_uav_system:stable
+export BASE_IMAGE=valseb:5000/ctumrs/mrs_uav_system:valentin
 
 # tag for the 'transport' image used for packing the workspace
 export TRANSPORT_IMAGE=alpine:latest

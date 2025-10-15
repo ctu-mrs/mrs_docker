@@ -8,4 +8,4 @@ ros2 run tf2_ros static_transform_publisher \
   --pitch 0 \
   --yaw 0 \
   --frame-id $UAV_NAME/fcu \
-  --child-frame-id os_sensor
+  --child-frame-id $UAV_NAME/os_sensor
