@@ -17,11 +17,11 @@ windows:
   - workspace:
       layout: tiled
       panes:
-        - export DOCKER_HOST=tcp://uav30:2375 && cd ./colcon_workspace_builder
+        - cd ./colcon_workspace_builder
   - rviz:
       layout: tiled
       panes:
-        - export DOCKER_HOST=tcp://uav30:2375 && ros2 run rviz2 rviz2 -d ./config.rviz
+        - ros2 run rviz2 rviz2 -d ./config.rviz
   - zenoh_router:
       layout: tiled
       panes:
