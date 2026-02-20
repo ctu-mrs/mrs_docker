@@ -1,0 +1,101 @@
+volumes:
+
+  config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./config
+
+  logs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./logs
+
+services:
+
+  zenoh:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    env_file:
+      - ./stack.env
+    command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix --share mrs_uav_deployment`/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
+
+  multirotor_simulator:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - config:/etc/config
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_multirotor_simulator multirotor_simulator.launch.py custom_config:=/etc/config/multirotor_simulator.yaml"
+
+  hw_api:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - /dev:/dev
+    privileged: true
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_uav_px4_api api.launch.py"
+
+  uav_core:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - config:/etc/config
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_uav_core core.launch.py platform_config:=`ros2 pkg prefix --share mrs_multirotor_simulator`/config/mrs_uav_system/$UAV_TYPE.yaml custom_config:=/etc/config/custom_config.yaml world_config:=/etc/config/world_config.yaml network_config:=/etc/config/network_config.yaml"
+
+  automatic_start:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - config:/etc/config
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.launch.py custom_config:=/etc/config/automatic_start.yaml"
+
+  takeoff:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - config:/etc/config
+    env_file:
+      - ./stack.env
+    tty: true
+    command: >
+      bash -c "waitForCore &&
+      ros2 service call /uav1/hw_api/arming std_srvs/srv/SetBool '{\"data\": true}' &&
+      sleep 1 && ros2 service call /uav1/hw_api/offboard std_srvs/srv/Trigger '{}'"
+
+  rviz:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - config:/etc/config
+        # we mount the folder below to enable passing GUI to the host
+      - /dev/dri:/dev/dri
+    env_file:
+      - ./stack.env
+    environment:
+      DISPLAY: $DISPLAY
+    command: bash -c "ros2 run rviz2 rviz2 -d ./rviz.rviz --ros-args -p use_sim_time:=true"
+
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - logs:/etc/logs:consistent
+
+# alternative way of running the commands
+    # entrypoint: ["/bin/bash", "-c"]
+    # command:
+    #   - |
+    #     source /opt/ros/jazzy/setup.bash
+    #     waitForCore
+    #     ros2 topic list
