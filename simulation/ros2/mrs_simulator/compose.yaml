@@ -35,9 +35,6 @@ services:
   hw_api:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
-    volumes:
-      - /dev:/dev
-    privileged: true
     env_file:
       - ./stack.env
     command: bash -c "ros2 launch mrs_multirotor_simulator hw_api.launch.py"
