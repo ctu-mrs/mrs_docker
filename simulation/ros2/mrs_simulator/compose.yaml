@@ -1,11 +1,11 @@
 volumes:
 
-  config:
+  shared_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./config
+      device: ./shared_data
 
   logs:
     driver: local
@@ -27,10 +27,10 @@ services:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
     volumes:
-      - config:/etc/config
+      - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
-    command: bash -c "ros2 launch mrs_multirotor_simulator multirotor_simulator.launch.py custom_config:=/etc/config/multirotor_simulator.yaml"
+    command: bash -c "ros2 launch mrs_multirotor_simulator multirotor_simulator.launch.py custom_config:=/etc/docker/shared_data/multirotor_simulator.yaml"
 
   hw_api:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
@@ -40,51 +40,49 @@ services:
     privileged: true
     env_file:
       - ./stack.env
-    command: bash -c "ros2 launch mrs_uav_px4_api api.launch.py"
+    command: bash -c "ros2 launch mrs_multirotor_simulator hw_api.launch.py"
 
   uav_core:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
     volumes:
-      - config:/etc/config
+      - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
-    command: bash -c "ros2 launch mrs_uav_core core.launch.py platform_config:=`ros2 pkg prefix --share mrs_multirotor_simulator`/config/mrs_uav_system/$UAV_TYPE.yaml custom_config:=/etc/config/custom_config.yaml world_config:=/etc/config/world_config.yaml network_config:=/etc/config/network_config.yaml"
+    command: bash -c "ros2 launch mrs_uav_core core.launch.py platform_config:=`ros2 pkg prefix --share mrs_multirotor_simulator`/config/mrs_uav_system/$UAV_TYPE.yaml custom_config:=/etc/docker/shared_data/custom_config.yaml world_config:=/etc/docker/shared_data/world_config.yaml network_config:=/etc/docker/shared_data/network_config.yaml"
 
   automatic_start:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
     volumes:
-      - config:/etc/config
+      - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
-    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.launch.py custom_config:=/etc/config/automatic_start.yaml"
+    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.launch.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
 
-  takeoff:
+  takeoff_goto:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
     volumes:
-      - config:/etc/config
+      - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
-    tty: true
     command: >
-      bash -c "waitForCore &&
-      ros2 service call /uav1/hw_api/arming std_srvs/srv/SetBool '{\"data\": true}' &&
-      sleep 1 && ros2 service call /uav1/hw_api/offboard std_srvs/srv/Trigger '{}'"
+      bash -c "waitForCore && ./etc/docker/shared_data/takeoff.sh &&
+      waitForTakeoff && ./etc/docker/shared_data/goto.py"
 
   rviz:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     network_mode: host
     volumes:
-      - config:/etc/config
+      - shared_data:/etc/docker/shared_data
         # we mount the folder below to enable passing GUI to the host
       - /dev/dri:/dev/dri
     env_file:
       - ./stack.env
     environment:
       DISPLAY: $DISPLAY
-    command: bash -c "ros2 run rviz2 rviz2 -d ./rviz.rviz --ros-args -p use_sim_time:=true"
+    command: bash -c "ros2 run rviz2 rviz2 -d /etc/docker/shared_data/rviz.rviz --ros-args -p use_sim_time:=true"
 
   dogtail:
     image: klaxalk/dogtail:latest
