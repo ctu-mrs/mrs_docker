@@ -13,7 +13,7 @@ volumes:
 
 services:
 
-  # this container primes the shared volumes and allows the content to be place in them
+  # this container primes the shared volumes and allows the content to be placed in them
   init:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
     volumes:
