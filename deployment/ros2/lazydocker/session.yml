@@ -9,11 +9,11 @@ windows:
       layout: 6102,174x53,0,0[174x38,0,0,0,174x14,0,39,5]
       panes:
         - export DOCKER_HOST=tcp://uav30:2375 && lazydocker
-        - export UAV_NAME=uav30; ros2 run mrs_uav_status status.sh
+        - export UAV_NAME=uav30 && ros2 run mrs_uav_status status.sh
   - compose:
       layout: tiled
       panes:
-        - export DOCKER_HOST=tcp://uav30:2375 && cd uav30 && ./up.sh
+        - export DOCKER_HOST=tcp://uav30:2375 && cd uav && ./up.sh
   - workspace:
       layout: tiled
       panes:
