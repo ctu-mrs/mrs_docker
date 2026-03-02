@@ -5,32 +5,9 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ./shared_data
-
-  logs:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./logs
+      device: ../common/shared_data
 
 services:
-
-  zenoh:
-    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
-    network_mode: host
-    env_file:
-      - ./stack.env
-    command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix --share mrs_uav_deployment`/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
-
-  multirotor_simulator:
-    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
-    network_mode: host
-    volumes:
-      - shared_data:/etc/docker/shared_data
-    env_file:
-      - ./stack.env
-    command: bash -c "ros2 launch mrs_multirotor_simulator multirotor_simulator.launch.py custom_config:=/etc/docker/shared_data/multirotor_simulator.yaml"
 
   hw_api:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
@@ -66,26 +43,13 @@ services:
       - ./stack.env
     command: >
       bash -c "waitForCore && ./etc/docker/shared_data/takeoff.sh &&
-      waitForTakeoff && ./etc/docker/shared_data/goto.py"
-
-  rviz:
-    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
-    network_mode: host
-    volumes:
-      - shared_data:/etc/docker/shared_data
-        # we mount the folder below to enable passing GUI to the host
-      - /dev/dri:/dev/dri
-    env_file:
-      - ./stack.env
-    environment:
-      DISPLAY: $DISPLAY
-    command: bash -c "ros2 run rviz2 rviz2 -d /etc/docker/shared_data/rviz.rviz --ros-args -p use_sim_time:=true"
+      waitForTakeoff && ./etc/docker/shared_data/goto.py --ros-args -p goal:='[2.0,2.0,1.0,1.5]'"
 
   dogtail:
     image: klaxalk/dogtail:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - logs:/etc/logs:consistent
+      - ./logs:/etc/logs:consistent
 
 # alternative way of running the commands
     # entrypoint: ["/bin/bash", "-c"]

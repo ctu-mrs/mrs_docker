@@ -13,6 +13,14 @@ uav1:
     z: 0.0
     heading: 3.14
 
+uav2:
+  type: "x500"
+  spawn:
+    x: 5.0
+    y: 15.0
+    z: 2.0
+    heading: 0
+
 dynamic:
   realtime_factor: 1.0 # [-]
 
@@ -23,4 +31,5 @@ individual_takeoff_platform:
 
 uav_names: [
   "uav1",
+  "uav2",
 ]

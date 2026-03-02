@@ -13,9 +13,11 @@ class Goto(Node):
 
         self.get_logger().info('ROS2 node initialized')
 
+        self.declare_parameter('goal', [5.0, 5.0, 2.0, 1.5])
+
         self.get_logger().info('Setting up the client')
 
-        self.client = self.create_client(Vec4, f'/{getenv('UAV_NAME', 'uav1')}/control_manager/goto')
+        self.client = self.create_client(Vec4, f"/{getenv('UAV_NAME', 'uav1')}/control_manager/goto")
 
         self.timer = self.create_timer(0.1, self.doAction)
 
@@ -31,10 +33,7 @@ class Goto(Node):
             self.get_logger().info('service not available, waiting again...')
 
         request = Vec4.Request()
-        request.goal[0] = 5.0
-        request.goal[1] = 5.0
-        request.goal[2] = 2.0
-        request.goal[3] = 1.5
+        request.goal = self.get_parameter('goal').value
 
         self.get_logger().info('Calling service')
 

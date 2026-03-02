@@ -1,0 +1,60 @@
+volumes:
+
+  shared_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ../common/shared_data
+
+services:
+
+  hw_api:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_multirotor_simulator hw_api.launch.py"
+
+  uav_core:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - shared_data:/etc/docker/shared_data
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_uav_core core.launch.py platform_config:=`ros2 pkg prefix --share mrs_multirotor_simulator`/config/mrs_uav_system/$UAV_TYPE.yaml custom_config:=/etc/docker/shared_data/custom_config.yaml world_config:=/etc/docker/shared_data/world_config.yaml network_config:=/etc/docker/shared_data/network_config.yaml"
+
+  automatic_start:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - shared_data:/etc/docker/shared_data
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.launch.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
+
+  takeoff_goto:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - shared_data:/etc/docker/shared_data
+    env_file:
+      - ./stack.env
+    command: >
+      bash -c "waitForCore && ./etc/docker/shared_data/takeoff.sh &&
+      waitForTakeoff && ./etc/docker/shared_data/goto.py"
+
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./logs:/etc/logs:consistent
+
+# alternative way of running the commands
+    # entrypoint: ["/bin/bash", "-c"]
+    # command:
+    #   - |
+    #     source /opt/ros/jazzy/setup.bash
+    #     waitForCore
+    #     ros2 topic list

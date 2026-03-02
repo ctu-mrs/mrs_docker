@@ -1,0 +1,44 @@
+services:
+
+  zenoh:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    env_file:
+      - ./stack.env
+    command: bash -c "export ZENOH_ROUTER_CONFIG_URI=`ros2 pkg prefix --share mrs_uav_deployment`/config/zenoh/uav_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd"
+
+  multirotor_simulator:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - ./shared_data:/etc/docker/shared_data
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 launch mrs_multirotor_simulator multirotor_simulator.launch.py custom_config:=/etc/docker/shared_data/multirotor_simulator.yaml"
+
+  rviz:
+    image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
+    network_mode: host
+    volumes:
+      - ./shared_data:/etc/docker/shared_data
+        # we mount the folder below to enable passing GUI to the host
+      - /dev/dri:/dev/dri
+    environment:
+      DISPLAY: $DISPLAY
+    env_file:
+      - ./stack.env
+    command: bash -c "ros2 run rviz2 rviz2 -d /etc/docker/shared_data/rviz.rviz --ros-args -p use_sim_time:=true"
+
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./logs:/etc/logs:consistent
+
+# alternative way of running the commands
+    # entrypoint: ["/bin/bash", "-c"]
+    # command:
+    #   - |
+    #     source /opt/ros/jazzy/setup.bash
+    #     waitForCore
+    #     ros2 topic list
