@@ -7,13 +7,6 @@ volumes:
       type: none
       device: ./shared_data
 
-  logs:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./logs
-
 services:
 
   zenoh:
@@ -83,7 +76,7 @@ services:
     image: klaxalk/dogtail:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - logs:/etc/logs:consistent
+      - ./logs:/etc/logs:consistent
 
 # alternative way of running the commands
     # entrypoint: ["/bin/bash", "-c"]

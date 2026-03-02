@@ -1,8 +1,4 @@
-#!/bin/bash
-
-this_dir="$(dirname "$(realpath "$0")")"
-cd "$this_dir"
-
+cd "$(dirname "$0")"
 xhost +local:docker
 
 docker compose --env-file ./stack.env up -d
