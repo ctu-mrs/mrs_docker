@@ -14,7 +14,7 @@ windows:
   - compose:
       layout: tiled
       panes:
-        - export DOCKER_HOST=tcp://$UAV_NAME:2375 && cd uav && ./up.sh
+        - export DOCKER_HOST=tcp://$UAV_NAME:2375; cd uav && ./up.sh
   - workspace:
       layout: tiled
       panes:
