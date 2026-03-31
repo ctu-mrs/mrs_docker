@@ -1,9 +1,9 @@
-mrsUavSystemVersion: stable
 homeFolder: /home/mrs
 runType: realworld
 uavName: uav30
 uavType: x500
 uavMass: 4.0
+mrsUavSystemVersion: stable
 worldName: temesvar_field
-oldPx4Fw: true
+oldPx4Fw: false
 rmwImplementation: rmw_zenoh_cpp
