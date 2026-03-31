@@ -42,7 +42,7 @@ fi
 ## |           init finished, let's run the containers          |
 ## --------------------------------------------------------------
 
-source ./setup.sh
+source ./stack.env
 
 SHARED_DATA_FOLDER=shared_data
 COLCON_BUILDER_PATH=./../colcon_workspace_builder

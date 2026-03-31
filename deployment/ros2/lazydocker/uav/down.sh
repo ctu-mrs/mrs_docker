@@ -6,7 +6,7 @@ SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 cd "$SCRIPTPATH"
 
-source ./setup.sh
+source ./stack.env
 
 docker compose -p $SESSION_NAME --env-file ./stack.env down --remove-orphans --timeout 1
 docker network prune -f
