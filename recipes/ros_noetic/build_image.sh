@@ -10,7 +10,7 @@ cd ${MY_PATH}
 ## |                            setup                           |
 ## --------------------------------------------------------------
 
-LOCAL_TAG=ros_noetic
+LOCAL_TAG=ros_noetic:latest
 REGISTRY=ctumrs
 
 # single-platform image can be stored locally
@@ -36,4 +36,4 @@ else
 fi
 
 # build the docker image using the builder and export the results to the local docker registry
-docker buildx build . --file Dockerfile --tag $REGISTRY/$LOCAL_TAG:latest --tag $REGISTRY/$LOCAL_TAG:2026-02-18 --platform=linux/amd64,linux/arm64 --push 
+docker buildx build . --file Dockerfile --tag $REGISTRY/$LOCAL_TAG:latest --tag $REGISTRY/${LOCAL_TAG}_26_06_25 --platform=linux/amd64,linux/arm64 --push 
