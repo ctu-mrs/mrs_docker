@@ -6,6 +6,10 @@ tmux_options: -f /etc/ctu-mrs/tmux.conf
 startup_window: lazydocker
 pre_window: export UAV_NAME=uav30
 windows:
+  - zenoh_router:
+      layout: tiled
+      panes:
+        - ./zenoh_router.sh
   - lazydocker:
       layout: 6102,174x53,0,0[174x38,0,0,0,174x14,0,39,5]
       panes:
@@ -23,7 +27,3 @@ windows:
       layout: tiled
       panes:
         - ros2 run rviz2 rviz2 -d ./config.rviz
-  - zenoh_router:
-      layout: tiled
-      panes:
-        - export ZENOH_ROUTER_CONFIG_URI=./zenoh_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd
