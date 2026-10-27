@@ -32,7 +32,7 @@ services:
       - shared_data:/etc/docker/shared_data
     env_file:
       - ./stack.env
-    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.launch.py custom_config:=/etc/docker/shared_data/automatic_start.yaml"
+    command: bash -c "ros2 launch mrs_uav_autostart automatic_start.launch.py custom_config:=/etc/docker/shared_data/custom_config.yaml"
 
   takeoff_goto:
     image: ctumrs/mrs_uav_system:${MRS_UAV_SYSTEM_VERSION}
